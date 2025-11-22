@@ -81,3 +81,5 @@ Aplikacja zawiera płynne animacje:
 -Problem: Brak folderu data
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
+- **Po zmaganiach tak niestety ale przycisk zastosuj filtry nie dziala i filtry dzialaja w czasie rzeczywistym więc chyba jest lepiej**
+
