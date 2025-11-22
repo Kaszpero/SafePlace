@@ -47,11 +47,10 @@ DODAJ TE FOLDERY I WLORZ TAM RZECZY
 
 ## 🎮 Jak używać
 
-1. **Zaloguj się** używając podanych danych
-2. **Kliknij na mapę** w miejscu zagrożenia
-3. **Wypełnij formularz** (rodzaj, poziom, opis)
-4. **Głosuj na zgłoszenia** innych użytkowników
-5. **Używaj filtrów** do przeglądania zgłoszeń
+1. **Kliknij na mapę** w miejscu zagrożenia
+2. **Wypełnij formularz** (rodzaj, poziom, opis)
+3. **Głosuj na zgłoszenia** innych użytkowników
+4. **Używaj filtrów** do przeglądania zgłoszeń
 
 ## 🗳️ System głosowania
 
@@ -82,4 +81,5 @@ Aplikacja zawiera płynne animacje:
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
 - **Po zmaganiach tak niestety ale przycisk zastosuj filtry nie dziala i filtry dzialaja w czasie rzeczywistym więc chyba jest lepiej**
+
 
