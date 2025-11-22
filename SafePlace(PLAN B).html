@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafePlace - Bezpieczna Społeczność</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            min-height: 80vh;
+            animation: zoomIn 0.8s ease-out;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin-bottom: 30px;
+            animation: fadeInLeft 0.6s ease-out;
+        }
+
+        .panel-section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .filter-option:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .filter-option input {
+            width: 18px;
+            height: 18px;
+        }
+
+        .threat-levels {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .level-btn {
+            width: 100%;
+            padding: 8px 5px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            border: 2px solid transparent;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        .level-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 2px solid white;
+            font-weight: 900;
+        }
+
+        .level-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .level-1 { background: #27ae60; }
+        .level-2 { background: #2ecc71; }
+        .level-3 { background: #f1c40f; }
+        .level-4 { background: #f39c12; }
+        .level-5 { background: #e67e22; }
+        .level-6 { background: #d35400; }
+        .level-7 { background: #e74c3c; }
+        .level-8 { background: #c0392b; }
+        .level-9 { background: #8e44ad; }
+        .level-10 { background: #2c3e50; }
+
+        .stats {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateX(5px);
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: 2px solid #2980b9;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+            border: 2px solid #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+            border: 2px solid #219652;
+        }
+
+        .btn-success:hover {
+            background: #219652;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: 2px solid #c0392b;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+            border: 2px solid #138496;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            width: auto;
+            font-size: 0.9rem;
+        }
+
+        .map-container {
+            position: relative;
+            background: #ecf0f1;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border-radius: 0 20px 20px 0;
+        }
+
+        .form-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: formAppear 0.3s ease-out;
+        }
+
+        @keyframes formAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group select,
+        .form-group textarea,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .level-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .level-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        #current-level {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* KOLOROWY PASEK POZIOMU ZAGROŻENIA */
+        .threat-level-indicator {
+            margin-top: 15px;
+        }
+
+        .level-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .level-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+            background: linear-gradient(90deg, #27ae60, #f1c40f, #e67e22, #e74c3c, #8e44ad);
+            width: 50%;
+        }
+
+        .level-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .form-buttons .btn {
+            margin-top: 0;
+            flex: 1;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 200px;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .legend h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .threat-popup h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .threat-popup p {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .threat-level-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .vote-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .vote-progress {
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            transition: width 0.8s ease-in-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, 0.2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+
+        .vote-percentage {
+            text-align: center;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 5px;
+            animation: bounce 0.6s ease-out;
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .vote-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .vote-btn.resolved {
+            background: #27ae60;
+            color: white;
+        }
+
+        .vote-btn.not-resolved {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .vote-btn.voted {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.5);
+            animation: pulse 1s infinite;
+        }
+
+        .popup-actions {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .popup-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+
+        .popup-actions .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .popup-actions .delete-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .notification.success {
+            background: #27ae60;
+        }
+
+        .notification.error {
+            background: #e74c3c;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .reports-sidebar {
+            background: rgba(255,255,255,0.95);
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            overflow-y: auto;
+            display: none;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .reports-sidebar.active {
+            display: block;
+        }
+
+        .reports-header {
+            padding: 15px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-reports {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: transform 0.3s ease;
+        }
+
+        .close-reports:hover {
+            transform: scale(1.2);
+        }
+
+        .reports-tabs {
+            display: flex;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-bottom: 2px solid #3498db;
+            font-weight: bold;
+        }
+
+        .tab-btn:hover {
+            background: #e9ecef;
+        }
+
+        .reports-content {
+            padding: 10px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .report-item {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .report-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .report-item:last-child {
+            border-bottom: none;
+        }
+
+        .report-type {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .report-level {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .report-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .report-date {
+            color: #95a5a6;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        .report-votes {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .show-reports-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+            border: 2px solid #2980b9;
+            transition: all 0.3s ease;
+            animation: bounce 2s infinite;
+        }
+
+        .show-reports-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        /* PRZYCISK POMOCY */
+        .help-floating-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            animation: bounce 2s infinite;
+        }
+
+        .help-floating-btn:hover {
+            background: #138496;
+            transform: scale(1.1);
+        }
+
+        /* MODAL POMOCY */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .help-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .help-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .help-header {
+            padding: 20px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .help-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-help {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-help:hover {
+            transform: scale(1.2);
+        }
+
+        .help-body {
+            padding: 20px;
+        }
+
+        .help-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .help-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .help-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+
+        .help-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .help-section li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .help-section li:before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+            position: absolute;
+            left: 10px;
+        }
+
+        .level-guide {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .level-guide h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .guide-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .help-footer {
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+            text-align: center;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel {
+                order: 2;
+            }
+
+            .map-container {
+                order: 1;
+                min-height: 500px;
+            }
+
+            #map {
+                border-radius: 0;
+                min-height: 500px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 10px;
+            }
+
+            .form-container {
+                width: calc(100% - 40px);
+            }
+
+            .legend {
+                bottom: 80px;
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+
+            .reports-sidebar {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            .help-content {
+                width: 95%;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>SafePlace</h1>
+            <p>Bezpieczna społeczność - zgłaszaj i monitoruj zagrożenia w Twojej okolicy</p>
+        </div>
+
+        <div class="main-content">
+            <div class="filter-panel">
+                <div class="panel-section">
+                    <h3>Wyszukaj zgłoszenia</h3>
+                    <div class="search-container">
+                        <input type="text" id="search-input" class="search-input" placeholder="Szukaj w opisie zgłoszeń...">
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Rodzaj zagrożenia</h3>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="crime">
+                            <span>Przestępczość</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="accident">
+                            <span>Wypadki</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="nature">
+                            <span>Zagrożenia naturalne</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="infrastructure">
+                            <span>Infrastruktura</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="health">
+                            <span>Zdrowotne</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="other">
+                            <span>Inne</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Skala zagrożenia</h3>
+                    <div class="threat-levels">
+                        <button class="level-btn level-1 active" data-level="1">1</button>
+                        <button class="level-btn level-2 active" data-level="2">2</button>
+                        <button class="level-btn level-3 active" data-level="3">3</button>
+                        <button class="level-btn level-4 active" data-level="4">4</button>
+                        <button class="level-btn level-5 active" data-level="5">5</button>
+                        <button class="level-btn level-6 active" data-level="6">6</button>
+                        <button class="level-btn level-7 active" data-level="7">7</button>
+                        <button class="level-btn level-8 active" data-level="8">8</button>
+                        <button class="level-btn level-9 active" data-level="9">9</button>
+                        <button class="level-btn level-10 active" data-level="10">10</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Status głosów</h3>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="radio" name="voteStatus" value="all" checked>
+                            <span>Wszystkie</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="voteStatus" value="mostlyResolved">
+                            <span>Głównie rozwiązane</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="voteStatus" value="mostlyNotResolved">
+                            <span>Głównie nierozwiązane</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <h3>Statystyki</h3>
+                    <div class="stat-item">
+                        <span>Wszystkie zgłoszenia:</span>
+                        <span class="stat-value" id="total-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Wszystkie głosy:</span>
+                        <span class="stat-value" id="total-votes">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Dzisiaj:</span>
+                        <span class="stat-value" id="today-count">0</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="apply-filters">Zastosuj filtry</button>
+                <button class="btn btn-secondary" id="clear-filters">Wyczyść filtry</button>
+                <button class="btn btn-success" id="show-reports-btn">Pokaż listę zgłoszeń</button>
+                <button class="btn btn-info" id="help-btn">Jak używać?</button>
+            </div>
+
+            <div class="map-container">
+                <div id="map"></div>
+
+                <div class="form-container" id="report-form">
+                    <div class="form-header">
+                        <h2>Zgłoś zagrożenie</h2>
+                    </div>
+                    <form id="threat-report">
+                        <div class="form-group">
+                            <label for="threat-type">Rodzaj zagrożenia *</label>
+                            <select id="threat-type" required>
+                                <option value="">Wybierz rodzaj</option>
+                                <option value="crime">Przestępczość</option>
+                                <option value="accident">Wypadek</option>
+                                <option value="nature">Zagrożenie naturalne</option>
+                                <option value="infrastructure">Uszkodzona infrastruktura</option>
+                                <option value="health">Zagrożenie zdrowotne</option>
+                                <option value="other">Inne</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Skala zagrożenia: <span id="current-level">5</span>/10 *</label>
+                            <input type="range" id="threat-level" class="level-slider" min="1" max="10" value="5" required>
+                            <div class="level-display">
+                                <span>1 (niskie)</span>
+                                <span>10 (krytyczne)</span>
+                            </div>
+                            <!-- KOLOROWY PASEK POZIOMU ZAGROŻENIA -->
+                            <div class="threat-level-indicator">
+                                <div class="level-bar">
+                                    <div class="level-fill" id="level-fill"></div>
+                                </div>
+                                <div class="level-labels">
+                                    <span>Niskie</span>
+                                    <span>Średnie</span>
+                                    <span>Wysokie</span>
+                                    <span>Krytyczne</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="threat-description">Opis zagrożenia *</label>
+                            <textarea id="threat-description" placeholder="Opisz szczegóły zagrożenia..." required></textarea>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-secondary" id="cancel-report">Anuluj</button>
+                            <button type="submit" class="btn btn-primary">Zgłoś</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="reports-sidebar" id="reports-sidebar">
+                    <div class="reports-header">
+                        <h3>Lista zgłoszeń</h3>
+                        <button class="close-reports" id="close-reports">×</button>
+                    </div>
+                    <div class="reports-tabs">
+                        <button class="tab-btn active" data-tab="active">Wszystkie</button>
+                        <button class="tab-btn" data-tab="voted">Moje głosy</button>
+                    </div>
+                    <div class="reports-content">
+                        <div class="tab-content active" id="active-tab">
+                            <div id="active-reports-list"></div>
+                        </div>
+                        <div class="tab-content" id="voted-tab">
+                            <div id="voted-reports-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL POMOCY -->
+                <div class="help-modal" id="help-modal">
+                    <div class="help-content">
+                        <div class="help-header">
+                            <h2>Jak używać SafePlace? 📚</h2>
+                            <button class="close-help" id="close-help">×</button>
+                        </div>
+                        <div class="help-body">
+                            <div class="help-section">
+                                <h3>🗺️ Podstawowe funkcje</h3>
+                                <ul>
+                                    <li><strong>Kliknij na mapę</strong> - aby dodać nowe zgłoszenie zagrożenia</li>
+                                    <li><strong>Kliknij znacznik</strong> - aby zobaczyć szczegóły i zagłosować</li>
+                                    <li><strong>Użyj filtrów</strong> - aby przeglądać wybrane typy zagrożeń</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>⚠️ Zgłaszanie zagrożeń</h3>
+                                <ul>
+                                    <li><strong>Rodzaj zagrożenia</strong> - wybierz kategorię problemu</li>
+                                    <li><strong>Skala zagrożenia</strong> - od 1 (niskie) do 10 (krytyczne)</li>
+                                    <li><strong>Opis</strong> - szczegółowo opisz sytuację</li>
+                                </ul>
+                                <div class="level-guide">
+                                    <h4>Skala zagrożenia:</h4>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #27ae60;"></span>
+                                        <span><strong>1-2:</strong> Niskie - drobne utrudnienia</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #f1c40f;"></span>
+                                        <span><strong>3-4:</strong> Umiarkowane - wymaga uwagi</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #e67e22;"></span>
+                                        <span><strong>5-6:</strong> Średnie - poważne zagrożenie</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #e74c3c;"></span>
+                                        <span><strong>7-8:</strong> Wysokie - pilna interwencja</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #8e44ad;"></span>
+                                        <span><strong>9-10:</strong> Krytyczne - bezpośrednie niebezpieczeństwo</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>🗳️ System głosowania</h3>
+                                <ul>
+                                    <li><strong>👍 Rozwiązane</strong> - zagłosuj jeśli problem został naprawiony</li>
+                                    <li><strong>👎 Nierozwiązane</strong> - zagłosuj jeśli problem nadal istnieje</li>
+                                    <li><strong>Procentowe wskazanie</strong> - pokazuje opinię społeczności</li>
+                                    <li>Każdy użytkownik może zagłosować tylko raz na zgłoszenie</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>🔍 Filtrowanie</h3>
+                                <ul>
+                                    <li><strong>Rodzaj zagrożenia</strong> - pokaż/ukryj kategorie</li>
+                                    <li><strong>Skala zagrożenia</strong> - wybierz poziomy do wyświetlenia</li>
+                                    <li><strong>Status głosów</strong> - filtruj według opinii społeczności</li>
+                                    <li><strong>Wyszukiwanie</strong> - znajdź zgłoszenia po opisie</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>📊 Statystyki</h3>
+                                <ul>
+                                    <li><strong>Wszystkie zgłoszenia</strong> - całkowita liczba</li>
+                                    <li><strong>Wszystkie głosy</strong> - suma wszystkich oddanych głosów</li>
+                                    <li><strong>Dzisiaj</strong> - zgłoszenia dodane dzisiaj</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="help-footer">
+                            <button class="btn btn-primary" id="close-help-btn">Rozumiem!</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <h4>Legenda zagrożeń</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #27ae60;"></div>
+                        <span>Niskie (1-2)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f1c40f;"></div>
+                        <span>Umiarkowane (3-4)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e67e22;"></div>
+                        <span>Średnie (5-6)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>Wysokie (7-8)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #8e44ad;"></div>
+                        <span>Krytyczne (9-10)</span>
+                    </div>
+                </div>
+
+                <button class="show-reports-btn" id="show-reports-btn-sidebar">
+                    Lista zgłoszeń
+                </button>
+
+                <button class="help-floating-btn" id="help-floating-btn">
+                    ❓ Pomoc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Klasy JavaScript w jednym pliku
+        class SafePlaceMap {
+            constructor() {
+                this.map = null;
+                this.markers = [];
+                this.init();
+            }
+
+            init() {
+                this.map = L.map('map').setView([52.0, 19.0], 6);
+                this.map.setMaxBounds([[49.0, 14.0], [55.0, 24.5]]);
+                this.map.setMinZoom(6);
+                this.map.setMaxZoom(13);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 18
+                }).addTo(this.map);
+
+                this.map.on('click', (e) => {
+                    const event = new CustomEvent('mapClick', { detail: { latlng: e.latlng } });
+                    document.dispatchEvent(event);
+                });
+
+                this.getUserLocation();
+            }
+
+            getUserLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const userLocation = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            
+                            L.marker([userLocation.lat, userLocation.lng])
+                                .addTo(this.map)
+                                .bindPopup('Twoja aktualna lokalizacja')
+                                .openPopup();
+                            
+                            this.map.setView([userLocation.lat, userLocation.lng], 13);
+                        },
+                        (error) => {
+                            console.log('Błąd geolokalizacji:', error);
+                        }
+                    );
+                }
+            }
+
+            addThreatMarker(threat) {
+                const threatColors = {
+                    1: '#27ae60', 2: '#2ecc71', 3: '#f1c40f', 4: '#f39c12',
+                    5: '#e67e22', 6: '#d35400', 7: '#e74c3c', 8: '#c0392b',
+                    9: '#8e44ad', 10: '#2c3e50'
+                };
+
+                const customIcon = L.divIcon({
+                    className: 'custom-threat-marker',
+                    html: `<div style="
+                        width: 24px; 
+                        height: 24px; 
+                        background: ${threatColors[threat.level]}; 
+                        border: 3px solid white; 
+                        border-radius: 50%; 
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                        cursor: pointer;
+                        animation: pulse 2s infinite;
+                    "></div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const marker = L.marker([threat.lat, threat.lng], { icon: customIcon })
+                    .addTo(this.map)
+                    .bindPopup(this.createPopupContent(threat));
+
+                this.markers.push({
+                    id: threat.id,
+                    marker: marker,
+                    threat: threat
+                });
+
+                return marker;
+            }
+
+            createPopupContent(threat) {
+                const typeNames = {
+                    'crime': 'Przestępczość',
+                    'accident': 'Wypadek',
+                    'nature': 'Zagrożenie naturalne',
+                    'infrastructure': 'Uszkodzona infrastruktura',
+                    'health': 'Zagrożenie zdrowotne',
+                    'other': 'Inne'
+                };
+
+                const threatColors = {
+                    1: '#27ae60', 2: '#2ecc71', 3: '#f1c40f', 4: '#f39c12',
+                    5: '#e67e22', 6: '#d35400', 7: '#e74c3c', 8: '#c0392b',
+                    9: '#8e44ad', 10: '#2c3e50'
+                };
+
+                const totalVotes = threat.votes.resolved + threat.votes.notResolved;
+                const resolvedPercentage = totalVotes > 0 ? Math.round((threat.votes.resolved / totalVotes) * 100) : 0;
+
+                return `
+                    <div class="threat-popup">
+                        <h3>${typeNames[threat.type]}</h3>
+                        <p><strong>Poziom zagrożenia:</strong> 
+                            <span class="threat-level-badge" style="background: ${threatColors[threat.level]}">
+                                ${threat.level}/10
+                            </span>
+                        </p>
+                        <p><strong>Opis:</strong> ${threat.description}</p>
+                        <p><strong>Data:</strong> ${this.formatDate(threat.date)}</p>
+                        <p><strong>Zgłoszono przez:</strong> ${threat.reportedBy}</p>
+                        
+                        <div class="vote-section">
+                            <h4>Spoleczna weryfikacja:</h4>
+                            <div class="vote-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${resolvedPercentage}%"></div>
+                                </div>
+                                <div class="vote-percentage">${resolvedPercentage}% uważa za rozwiązane</div>
+                            </div>
+                            <div class="vote-buttons">
+                                <button class="vote-btn resolved" onclick="app.voteOnThreat('${threat.id}', 'resolved')">
+                                    👍 Rozwiązane
+                                </button>
+                                <button class="vote-btn not-resolved" onclick="app.voteOnThreat('${threat.id}', 'notResolved')">
+                                    👎 Nierozwiązane
+                                </button>
+                            </div>
+                            <p style="font-size: 0.8rem; margin-top: 8px; color: #7f8c8d;">
+                                Głosów: ${totalVotes} (${threat.votes.resolved} 👍 / ${threat.votes.notResolved} 👎)
+                            </p>
+                        </div>
+
+                        <div class="popup-actions">
+                            <button class="delete-btn" onclick="app.deleteThreat('${threat.id}')">Usuń zgłoszenie</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            removeMarker(threatId) {
+                const markerIndex = this.markers.findIndex(m => m.id === threatId);
+                if (markerIndex !== -1) {
+                    this.map.removeLayer(this.markers[markerIndex].marker);
+                    this.markers.splice(markerIndex, 1);
+                }
+            }
+
+            clearMarkers() {
+                this.markers.forEach(marker => {
+                    this.map.removeLayer(marker.marker);
+                });
+                this.markers = [];
+            }
+
+            filterMarkers(shouldShow) {
+                this.markers.forEach(markerData => {
+                    const { marker, threat } = markerData;
+                    
+                    if (shouldShow(threat)) {
+                        if (!this.map.hasLayer(marker)) {
+                            marker.addTo(this.map);
+                        }
+                    } else {
+                        if (this.map.hasLayer(marker)) {
+                            this.map.removeLayer(marker);
+                        }
+                    }
+                });
+            }
+
+            formatDate(date) {
+                return new Date(date).toLocaleString('pl-PL', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            focusOnThreat(threat) {
+                this.map.setView([threat.lat, threat.lng], 15);
+                const marker = this.markers.find(m => m.id === threat.id);
+                if (marker) {
+                    marker.marker.openPopup();
+                }
+            }
+
+            updateMarker(threat) {
+                this.removeMarker(threat.id);
+                this.addThreatMarker(threat);
+            }
+        }
+
+        class ThreatManager {
+            constructor() {
+                this.threats = [];
+                this.filters = {
+                    types: ['crime', 'accident', 'nature', 'infrastructure', 'health', 'other'],
+                    levels: [1,2,3,4,5,6,7,8,9,10],
+                    voteStatus: 'all',
+                    search: ''
+                };
+                this.userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            async loadThreats() {
+                try {
+                    const response = await fetch('/api/threats');
+                    this.threats = await response.json();
+                    return this.threats;
+                } catch (error) {
+                    console.error('Błąd ładowania danych:', error);
+                    return [];
+                }
+            }
+
+            async addThreat(threatData) {
+                try {
+                    const response = await fetch('/api/threats', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(threatData)
+                    });
+
+                    if (response.ok) {
+                        const newThreat = await response.json();
+                        this.threats.push(newThreat);
+                        return newThreat;
+                    } else {
+                        throw new Error('Błąd serwera');
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            async voteOnThreat(threatId, vote) {
+                try {
+                    const response = await fetch(`/api/threats/${threatId}/vote`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            vote: vote,
+                            voter: this.userId 
+                        })
+                    });
+
+                    if (response.ok) {
+                        const updatedThreat = await response.json();
+                        const threatIndex = this.threats.findIndex(threat => threat.id === threatId);
+                        if (threatIndex !== -1) {
+                            this.threats[threatIndex] = updatedThreat;
+                        }
+                        return updatedThreat;
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Błąd głosowania');
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            async deleteThreat(threatId) {
+                try {
+                    const response = await fetch(`/api/threats/${threatId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        this.threats = this.threats.filter(threat => threat.id !== threatId);
+                        return true;
+                    } else {
+                        throw new Error('Błąd usuwania');
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            isThreatVisible(threat) {
+                const typeMatch = this.filters.types.includes(threat.type);
+                const levelMatch = this.filters.levels.includes(threat.level);
+                const searchMatch = !this.filters.search || threat.description.toLowerCase().includes(this.filters.search);
+                
+                const totalVotes = threat.votes.resolved + threat.votes.notResolved;
+                const resolvedPercentage = totalVotes > 0 ? (threat.votes.resolved / totalVotes) * 100 : 0;
+                
+                let voteStatusMatch = true;
+                if (this.filters.voteStatus === 'mostlyResolved') {
+                    voteStatusMatch = resolvedPercentage >= 50;
+                } else if (this.filters.voteStatus === 'mostlyNotResolved') {
+                    voteStatusMatch = resolvedPercentage < 50;
+                }
+                
+                return typeMatch && levelMatch && searchMatch && voteStatusMatch;
+            }
+
+            getVisibleThreats() {
+                return this.threats.filter(threat => this.isThreatVisible(threat));
+            }
+
+            getStats() {
+                const today = new Date().toDateString();
+                const todayThreats = this.threats.filter(threat => 
+                    new Date(threat.date).toDateString() === today
+                );
+
+                const totalVotes = this.threats.reduce((sum, threat) => {
+                    return sum + threat.votes.resolved + threat.votes.notResolved;
+                }, 0);
+
+                return {
+                    today: todayThreats.length,
+                    totalVotes: totalVotes,
+                    total: this.threats.length
+                };
+            }
+
+            getTypeName(type) {
+                const names = {
+                    'crime': 'Przestępczość',
+                    'accident': 'Wypadek',
+                    'nature': 'Zagrożenie naturalne',
+                    'infrastructure': 'Infrastruktura',
+                    'health': 'Zdrowotne',
+                    'other': 'Inne'
+                };
+                return names[type] || 'Nieznany typ';
+            }
+
+            getThreatColor(level) {
+                const colors = {
+                    1: '#27ae60', 2: '#2ecc71', 3: '#f1c40f', 4: '#f39c12',
+                    5: '#e67e22', 6: '#d35400', 7: '#e74c3c', 8: '#c0392b',
+                    9: '#8e44ad', 10: '#2c3e50'
+                };
+                return colors[level] || '#95a5a6';
+            }
+
+            formatDate(date) {
+                return new Date(date).toLocaleString('pl-PL', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            hasUserVoted(threat) {
+                return threat.votes.voters.includes(this.userId);
+            }
+
+            getUserVotedThreats() {
+                return this.threats.filter(threat => this.hasUserVoted(threat));
+            }
+        }
+
+        class SafePlaceApp {
+            constructor() {
+                this.map = new SafePlaceMap();
+                this.threatManager = new ThreatManager();
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+                await this.loadThreats();
+                this.updateDisplay();
+                this.setupLevelIndicator();
+            }
+
+            setupEventListeners() {
+                document.getElementById('threat-report').addEventListener('submit', (e) => {
+                    this.handleReportSubmit(e);
+                });
+
+                document.getElementById('cancel-report').addEventListener('click', () => {
+                    this.closeReportForm();
+                });
+
+                document.getElementById('threat-level').addEventListener('input', (e) => {
+                    const level = e.target.value;
+                    document.getElementById('current-level').textContent = level;
+                    this.updateLevelIndicator(level);
+                });
+
+                document.getElementById('help-btn').addEventListener('click', () => {
+                    this.showHelp();
+                });
+
+                document.getElementById('help-floating-btn').addEventListener('click', () => {
+                    this.showHelp();
+                });
+
+                document.getElementById('close-help').addEventListener('click', () => {
+                    this.hideHelp();
+                });
+
+                document.getElementById('close-help-btn').addEventListener('click', () => {
+                    this.hideHelp();
+                });
+
+                document.getElementById('help-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'help-modal') {
+                        this.hideHelp();
+                    }
+                });
+
+                document.getElementById('apply-filters').addEventListener('click', () => {
+                    this.applyFilters();
+                });
+
+                document.getElementById('clear-filters').addEventListener('click', () => {
+                    this.clearFilters();
+                });
+
+                document.getElementById('show-reports-btn').addEventListener('click', () => {
+                    this.toggleReportsSidebar();
+                });
+
+                document.getElementById('show-reports-btn-sidebar').addEventListener('click', () => {
+                    this.toggleReportsSidebar();
+                });
+
+                document.getElementById('close-reports').addEventListener('click', () => {
+                    this.closeReportsSidebar();
+                });
+
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    this.threatManager.filters.search = e.target.value.toLowerCase();
+                    this.applyFilters();
+                });
+
+                document.addEventListener('mapClick', (e) => {
+                    this.openReportForm(e.detail.latlng);
+                });
+
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        e.target.classList.add('active');
+                        document.getElementById(e.target.dataset.tab + '-tab').classList.add('active');
+                        this.updateReportsList();
+                    });
+                });
+
+                document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        this.updateTypeFilters();
+                    });
+                });
+
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.target.classList.toggle('active');
+                        this.updateLevelFilters();
+                    });
+                });
+
+                document.querySelectorAll('input[name="voteStatus"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        this.threatManager.filters.voteStatus = e.target.value;
+                        this.applyFilters();
+                    });
+                });
+            }
+
+            showHelp() {
+                document.getElementById('help-modal').classList.add('active');
+            }
+
+            hideHelp() {
+                document.getElementById('help-modal').classList.remove('active');
+            }
+
+            setupLevelIndicator() {
+                this.updateLevelIndicator(5);
+            }
+
+            updateLevelIndicator(level) {
+                const levelFill = document.getElementById('level-fill');
+                const percentage = (level / 10) * 100;
+                
+                levelFill.style.width = `${percentage}%`;
+                
+                let color;
+                if (level <= 2) {
+                    color = 'linear-gradient(90deg, #27ae60, #2ecc71)';
+                } else if (level <= 4) {
+                    color = 'linear-gradient(90deg, #27ae60, #f1c40f)';
+                } else if (level <= 6) {
+                    color = 'linear-gradient(90deg, #f1c40f, #e67e22)';
+                } else if (level <= 8) {
+                    color = 'linear-gradient(90deg, #e67e22, #e74c3c)';
+                } else {
+                    color = 'linear-gradient(90deg, #e74c3c, #8e44ad)';
+                }
+                
+                levelFill.style.background = color;
+            }
+
+            async loadThreats() {
+                await this.threatManager.loadThreats();
+                this.threatManager.threats.forEach(threat => {
+                    this.map.addThreatMarker(threat);
+                });
+            }
+
+            openReportForm(latlng) {
+                const form = document.getElementById('report-form');
+                form.classList.add('active');
+                form.dataset.lat = latlng.lat;
+                form.dataset.lng = latlng.lng;
+                this.setupLevelIndicator();
+            }
+
+            closeReportForm() {
+                document.getElementById('report-form').classList.remove('active');
+                document.getElementById('threat-report').reset();
+                document.getElementById('current-level').textContent = '5';
+                this.updateLevelIndicator(5);
+                delete document.getElementById('report-form').dataset.lat;
+                delete document.getElementById('report-form').dataset.lng;
+            }
+
+            async handleReportSubmit(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const lat = parseFloat(form.parentElement.dataset.lat);
+                const lng = parseFloat(form.parentElement.dataset.lng);
+                
+                if (!lat || !lng) {
+                    this.showNotification('Błąd: Nie wybrano lokalizacji na mapie!', 'error');
+                    return;
+                }
+
+                const threatData = {
+                    lat: lat,
+                    lng: lng,
+                    type: document.getElementById('threat-type').value,
+                    level: parseInt(document.getElementById('threat-level').value),
+                    description: document.getElementById('threat-description').value
+                };
+
+                if (!threatData.type || !threatData.description) {
+                    this.showNotification('Proszę wypełnić wszystkie wymagane pola!', 'error');
+                    return;
+                }
+
+                try {
+                    const newThreat = await this.threatManager.addThreat(threatData);
+                    this.map.addThreatMarker(newThreat);
+                    this.closeReportForm();
+                    this.updateDisplay();
+                    this.showNotification('Zgłoszenie zostało dodane!', 'success');
+                } catch (error) {
+                    this.showNotification('Błąd podczas dodawania zgłoszenia', 'error');
+                }
+            }
+
+            async voteOnThreat(threatId, vote) {
+                try {
+                    const updatedThreat = await this.threatManager.voteOnThreat(threatId, vote);
+                    this.map.updateMarker(updatedThreat);
+                    this.updateDisplay();
+                    this.showNotification('Twój głos został zapisany!', 'success');
+                } catch (error) {
+                    this.showNotification(error.message, 'error');
+                }
+            }
+
+            async deleteThreat(threatId) {
+                if (!confirm('Czy na pewno chcesz usunąć to zgłoszenie?')) {
+                    return;
+                }
+
+                try {
+                    await this.threatManager.deleteThreat(threatId);
+                    this.map.removeMarker(threatId);
+                    this.updateDisplay();
+                    this.showNotification('Zgłoszenie zostało usunięte', 'success');
+                } catch (error) {
+                    this.showNotification('Błąd podczas usuwania zgłoszenia', 'error');
+                }
+            }
+
+            updateDisplay() {
+                this.applyFilters();
+                this.updateStats();
+                this.updateReportsList();
+            }
+
+            updateStats() {
+                const stats = this.threatManager.getStats();
+                document.getElementById('today-count').textContent = stats.today;
+                document.getElementById('total-votes').textContent = stats.totalVotes;
+                document.getElementById('total-count').textContent = stats.total;
+            }
+
+            updateReportsList() {
+                const activeReportsList = document.getElementById('active-reports-list');
+                const votedReportsList = document.getElementById('voted-reports-list');
+                
+                const visibleThreats = this.threatManager.getVisibleThreats();
+                const votedThreats = this.threatManager.getUserVotedThreats();
+                
+                activeReportsList.innerHTML = '';
+                votedReportsList.innerHTML = '';
+                
+                if (visibleThreats.length === 0) {
+                    activeReportsList.innerHTML = '<div class="report-item"><p>Brak zgłoszeń spełniających kryteria</p></div>';
+                } else {
+                    visibleThreats.slice(-10).reverse().forEach(threat => {
+                        activeReportsList.appendChild(this.createReportItem(threat));
+                    });
+                }
+                
+                if (votedThreats.length === 0) {
+                    votedReportsList.innerHTML = '<div class="report-item"><p>Nie zagłosowałeś jeszcze na żadne zgłoszenie</p></div>';
+                } else {
+                    votedThreats.slice(-10).reverse().forEach(threat => {
+                        votedReportsList.appendChild(this.createReportItem(threat));
+                    });
+                }
+            }
+
+            createReportItem(threat) {
+                const totalVotes = threat.votes.resolved + threat.votes.notResolved;
+                const resolvedPercentage = totalVotes > 0 ? Math.round((threat.votes.resolved / totalVotes) * 100) : 0;
+                const hasVoted = this.threatManager.hasUserVoted(threat);
+
+                const reportItem = document.createElement('div');
+                reportItem.className = `report-item ${hasVoted ? 'voted' : ''}`;
+                reportItem.innerHTML = `
+                    <div class="report-type">${this.threatManager.getTypeName(threat.type)}</div>
+                    <div class="report-level" style="background: ${this.threatManager.getThreatColor(threat.level)}">
+                        Poziom ${threat.level}
+                    </div>
+                    <div class="report-description">${threat.description}</div>
+                    <div class="report-votes">
+                        ${resolvedPercentage}% uważa za rozwiązane (${threat.votes.resolved} 👍 / ${threat.votes.notResolved} 👎)
+                    </div>
+                    <div class="report-date">${this.threatManager.formatDate(threat.date)}</div>
+                    <button class="btn btn-danger btn-small" onclick="app.deleteThreat('${threat.id}')" style="margin-top: 8px;">Usuń</button>
+                    ${hasVoted ? '<div class="report-date">✅ Zagłosowano</div>' : ''}
+                `;
+                
+                reportItem.addEventListener('click', () => {
+                    this.map.focusOnThreat(threat);
+                    this.closeReportsSidebar();
+                });
+                
+                return reportItem;
+            }
+
+            toggleReportsSidebar() {
+                this.updateReportsList();
+                document.getElementById('reports-sidebar').classList.toggle('active');
+            }
+
+            closeReportsSidebar() {
+                document.getElementById('reports-sidebar').classList.remove('active');
+            }
+
+            applyFilters() {
+                this.map.filterMarkers((threat) => this.threatManager.isThreatVisible(threat));
+                this.updateStats();
+                this.updateReportsList();
+            }
+
+            updateTypeFilters() {
+                this.threatManager.filters.types = [];
+                document.querySelectorAll('.filter-option input[type="checkbox"]:checked').forEach(checkbox => {
+                    this.threatManager.filters.types.push(checkbox.dataset.type);
+                });
+                this.applyFilters();
+            }
+
+            updateLevelFilters() {
+                this.threatManager.filters.levels = [];
+                document.querySelectorAll('.level-btn.active').forEach(btn => {
+                    this.threatManager.filters.levels.push(parseInt(btn.dataset.level));
+                });
+                this.applyFilters();
+            }
+
+            clearFilters() {
+                document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.classList.add('active');
+                });
+                
+                document.querySelector('input[value="all"]').checked = true;
+                
+                document.getElementById('search-input').value = '';
+                
+                this.threatManager.filters.types = ['crime', 'accident', 'nature', 'infrastructure', 'health', 'other'];
+                this.threatManager.filters.levels = [1,2,3,4,5,6,7,8,9,10];
+                this.threatManager.filters.voteStatus = 'all';
+                this.threatManager.filters.search = '';
+                
+                this.applyFilters();
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new SafePlaceApp();
+        });
+    </script>
+</body>
+</html>

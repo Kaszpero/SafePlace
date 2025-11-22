@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafePlace - Bezpieczna Społeczność</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>SafePlace</h1>
+            <p>Bezpieczna społeczność - zgłaszaj i monitoruj zagrożenia w Twojej okolicy</p>
+        </div>
+
+        <div class="main-content">
+            <div class="filter-panel">
+                <div class="panel-section">
+                    <h3>Wyszukaj zgłoszenia</h3>
+                    <div class="search-container">
+                        <input type="text" id="search-input" class="search-input" placeholder="Szukaj w opisie zgłoszeń...">
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Rodzaj zagrożenia</h3>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="crime">
+                            <span>Przestępczość</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="accident">
+                            <span>Wypadki</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="nature">
+                            <span>Zagrożenia naturalne</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="infrastructure">
+                            <span>Infrastruktura</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="health">
+                            <span>Zdrowotne</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" checked data-type="other">
+                            <span>Inne</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Skala zagrożenia</h3>
+                    <div class="threat-levels">
+                        <button class="level-btn level-1 active" data-level="1">1</button>
+                        <button class="level-btn level-2 active" data-level="2">2</button>
+                        <button class="level-btn level-3 active" data-level="3">3</button>
+                        <button class="level-btn level-4 active" data-level="4">4</button>
+                        <button class="level-btn level-5 active" data-level="5">5</button>
+                        <button class="level-btn level-6 active" data-level="6">6</button>
+                        <button class="level-btn level-7 active" data-level="7">7</button>
+                        <button class="level-btn level-8 active" data-level="8">8</button>
+                        <button class="level-btn level-9 active" data-level="9">9</button>
+                        <button class="level-btn level-10 active" data-level="10">10</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Status głosów</h3>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="radio" name="voteStatus" value="all" checked>
+                            <span>Wszystkie</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="voteStatus" value="mostlyResolved">
+                            <span>Głównie rozwiązane</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="voteStatus" value="mostlyNotResolved">
+                            <span>Głównie nierozwiązane</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <h3>Statystyki</h3>
+                    <div class="stat-item">
+                        <span>Wszystkie zgłoszenia:</span>
+                        <span class="stat-value" id="total-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Wszystkie głosy:</span>
+                        <span class="stat-value" id="total-votes">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Dzisiaj:</span>
+                        <span class="stat-value" id="today-count">0</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="apply-filters">Zastosuj filtry</button>
+                <button class="btn btn-secondary" id="clear-filters">Wyczyść filtry</button>
+                <button class="btn btn-success" id="show-reports-btn">Pokaż listę zgłoszeń</button>
+                <button class="btn btn-info" id="help-btn">Jak używać?</button>
+            </div>
+
+            <div class="map-container">
+                <div id="map"></div>
+
+                <div class="form-container" id="report-form">
+                    <div class="form-header">
+                        <h2>Zgłoś zagrożenie</h2>
+                    </div>
+                    <form id="threat-report">
+                        <div class="form-group">
+                            <label for="threat-type">Rodzaj zagrożenia *</label>
+                            <select id="threat-type" required>
+                                <option value="">Wybierz rodzaj</option>
+                                <option value="crime">Przestępczość</option>
+                                <option value="accident">Wypadek</option>
+                                <option value="nature">Zagrożenie naturalne</option>
+                                <option value="infrastructure">Uszkodzona infrastruktura</option>
+                                <option value="health">Zagrożenie zdrowotne</option>
+                                <option value="other">Inne</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Skala zagrożenia: <span id="current-level">5</span>/10 *</label>
+                            <input type="range" id="threat-level" class="level-slider" min="1" max="10" value="5" required>
+                            <div class="level-display">
+                                <span>1 (niskie)</span>
+                                <span>10 (krytyczne)</span>
+                            </div>
+                            <!-- KOLOROWY PASEK POZIOMU ZAGROŻENIA -->
+                            <div class="threat-level-indicator">
+                                <div class="level-bar">
+                                    <div class="level-fill" id="level-fill"></div>
+                                </div>
+                                <div class="level-labels">
+                                    <span>Niskie</span>
+                                    <span>Średnie</span>
+                                    <span>Wysokie</span>
+                                    <span>Krytyczne</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="threat-description">Opis zagrożenia *</label>
+                            <textarea id="threat-description" placeholder="Opisz szczegóły zagrożenia..." required></textarea>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-secondary" id="cancel-report">Anuluj</button>
+                            <button type="submit" class="btn btn-primary">Zgłoś</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="reports-sidebar" id="reports-sidebar">
+                    <div class="reports-header">
+                        <h3>Lista zgłoszeń</h3>
+                        <button class="close-reports" id="close-reports">×</button>
+                    </div>
+                    <div class="reports-tabs">
+                        <button class="tab-btn active" data-tab="active">Wszystkie</button>
+                        <button class="tab-btn" data-tab="voted">Moje głosy</button>
+                    </div>
+                    <div class="reports-content">
+                        <div class="tab-content active" id="active-tab">
+                            <div id="active-reports-list"></div>
+                        </div>
+                        <div class="tab-content" id="voted-tab">
+                            <div id="voted-reports-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL POMOCY -->
+                <div class="help-modal" id="help-modal">
+                    <div class="help-content">
+                        <div class="help-header">
+                            <h2>Jak używać SafePlace? 📚</h2>
+                            <button class="close-help" id="close-help">×</button>
+                        </div>
+                        <div class="help-body">
+                            <div class="help-section">
+                                <h3>🗺️ Podstawowe funkcje</h3>
+                                <ul>
+                                    <li><strong>Kliknij na mapę</strong> - aby dodać nowe zgłoszenie zagrożenia</li>
+                                    <li><strong>Kliknij znacznik</strong> - aby zobaczyć szczegóły i zagłosować</li>
+                                    <li><strong>Użyj filtrów</strong> - aby przeglądać wybrane typy zagrożeń</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>⚠️ Zgłaszanie zagrożeń</h3>
+                                <ul>
+                                    <li><strong>Rodzaj zagrożenia</strong> - wybierz kategorię problemu</li>
+                                    <li><strong>Skala zagrożenia</strong> - od 1 (niskie) do 10 (krytyczne)</li>
+                                    <li><strong>Opis</strong> - szczegółowo opisz sytuację</li>
+                                </ul>
+                                <div class="level-guide">
+                                    <h4>Skala zagrożenia:</h4>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #27ae60;"></span>
+                                        <span><strong>1-2:</strong> Niskie - drobne utrudnienia</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #f1c40f;"></span>
+                                        <span><strong>3-4:</strong> Umiarkowane - wymaga uwagi</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #e67e22;"></span>
+                                        <span><strong>5-6:</strong> Średnie - poważne zagrożenie</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #e74c3c;"></span>
+                                        <span><strong>7-8:</strong> Wysokie - pilna interwencja</span>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span class="guide-color" style="background: #8e44ad;"></span>
+                                        <span><strong>9-10:</strong> Krytyczne - bezpośrednie niebezpieczeństwo</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>🗳️ System głosowania</h3>
+                                <ul>
+                                    <li><strong>👍 Rozwiązane</strong> - zagłosuj jeśli problem został naprawiony</li>
+                                    <li><strong>👎 Nierozwiązane</strong> - zagłosuj jeśli problem nadal istnieje</li>
+                                    <li><strong>Procentowe wskazanie</strong> - pokazuje opinię społeczności</li>
+                                    <li>Każdy użytkownik może zagłosować tylko raz na zgłoszenie</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>🔍 Filtrowanie</h3>
+                                <ul>
+                                    <li><strong>Rodzaj zagrożenia</strong> - pokaż/ukryj kategorie</li>
+                                    <li><strong>Skala zagrożenia</strong> - wybierz poziomy do wyświetlenia</li>
+                                    <li><strong>Status głosów</strong> - filtruj według opinii społeczności</li>
+                                    <li><strong>Wyszukiwanie</strong> - znajdź zgłoszenia po opisie</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h3>📊 Statystyki</h3>
+                                <ul>
+                                    <li><strong>Wszystkie zgłoszenia</strong> - całkowita liczba</li>
+                                    <li><strong>Wszystkie głosy</strong> - suma wszystkich oddanych głosów</li>
+                                    <li><strong>Dzisiaj</strong> - zgłoszenia dodane dzisiaj</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="help-footer">
+                            <button class="btn btn-primary" id="close-help-btn">Rozumiem!</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <h4>Legenda zagrożeń</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #27ae60;"></div>
+                        <span>Niskie (1-2)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f1c40f;"></div>
+                        <span>Umiarkowane (3-4)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e67e22;"></div>
+                        <span>Średnie (5-6)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>Wysokie (7-8)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #8e44ad;"></div>
+                        <span>Krytyczne (9-10)</span>
+                    </div>
+                </div>
+
+                <button class="show-reports-btn" id="show-reports-btn-sidebar">
+                    Lista zgłoszeń
+                </button>
+
+                <button class="help-floating-btn" id="help-floating-btn">
+                    ❓ Pomoc
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/threats.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

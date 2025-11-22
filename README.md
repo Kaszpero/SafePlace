@@ -14,6 +14,7 @@ JESLI JAKIMS CUDEM NIC NIE BEDZIE DZIALAC PROSZE UZYC PLIKU SafePlace(PLAN B).ht
 - **Filtrowanie i wyszukiwanie** zgłoszeń
 - **Statystyki w czasie rzeczywistym**
 - **Responsywny design** z animacjami
+- **System logowania** z różnymi poziomami dostępu
 
 ## 📦 Instalacja
 
@@ -46,10 +47,11 @@ DODAJ TE FOLDERY I WLORZ TAM RZECZY
 
 ## 🎮 Jak używać
 
-1. **Kliknij na mapę** w miejscu zagrożenia
-2. **Wypełnij formularz** (rodzaj, poziom, opis)
-3. **Głosuj na zgłoszenia** innych użytkowników
-4. **Używaj filtrów** do przeglądania zgłoszeń
+1. **Zaloguj się** używając podanych danych
+2. **Kliknij na mapę** w miejscu zagrożenia
+3. **Wypełnij formularz** (rodzaj, poziom, opis)
+4. **Głosuj na zgłoszenia** innych użytkowników
+5. **Używaj filtrów** do przeglądania zgłoszeń
 
 ## 🗳️ System głosowania
 
@@ -79,4 +81,3 @@ Aplikacja zawiera płynne animacje:
 -Problem: Brak folderu data
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
-
