@@ -2,9 +2,7 @@
 
 Aplikacja webowa umożliwiająca zgłaszanie i monitorowanie zagrożeń w okolicy z systemem społecznej weryfikacji.
 
-#
-
-JESLI JAKIMS CUDEM NIC NIE BEDZIE DZIALAC PROSZE UZYC PLIKU SafePlace(PLAN B).html
+# JESLI JAKIMS CUDEM NIC NIE BEDZIE DZIALAC PROSZE UZYC PLIKU SafePlace(PLAN B).html
 
 ## 🚀 Funkcjonalności
 
@@ -81,6 +79,7 @@ Aplikacja zawiera płynne animacje:
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
 - **Po zmaganiach tak niestety ale przycisk zastosuj filtry nie dziala i filtry dzialaja w czasie rzeczywistym więc chyba jest lepiej**
+
 
 
 
