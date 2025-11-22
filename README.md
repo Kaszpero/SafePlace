@@ -77,9 +77,10 @@ Aplikacja zawiera płynne animacje:
 - **Styl:** CSS Grid, Flexbox, Animacje CSS
 
 ## UWAGA
--Problem: Brak folderu data
+-Problem: Brak folderu data i tego jednego Jsona
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
 - **Po zmaganiach tak niestety ale przycisk zastosuj filtry nie dziala i filtry dzialaja w czasie rzeczywistym więc chyba jest lepiej**
+
 
 
