@@ -12,7 +12,6 @@ Aplikacja webowa umożliwiająca zgłaszanie i monitorowanie zagrożeń w okolic
 - **Filtrowanie i wyszukiwanie** zgłoszeń
 - **Statystyki w czasie rzeczywistym**
 - **Responsywny design** z animacjami
-- **System logowania** z różnymi poziomami dostępu
 
 ## 📦 Instalacja
 
@@ -79,6 +78,7 @@ Aplikacja zawiera płynne animacje:
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
 - **Po zmaganiach tak niestety ale przycisk zastosuj filtry nie dziala i filtry dzialaja w czasie rzeczywistym więc chyba jest lepiej**
+
 
 
 
