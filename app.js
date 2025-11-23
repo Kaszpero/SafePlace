@@ -9,11 +9,11 @@ class SafePlaceApp {
         this.setupEventListeners();
         await this.loadThreats();
         this.updateDisplay();
-        this.setupLevelIndicator(); // Inicjalizacja paska poziomu
+        this.setupLevelIndicator();
     }
 
     setupEventListeners() {
-        // Istniejące event listenery...
+        // FORMULARZ ZGŁOSZEŃ
         document.getElementById('threat-report').addEventListener('submit', (e) => {
             this.handleReportSubmit(e);
         });
@@ -22,14 +22,14 @@ class SafePlaceApp {
             this.closeReportForm();
         });
 
-        // OBSŁUGA PASK POZIOMU ZAGROŻENIA
+        // SUWAK POZIOMU ZAGROŻENIA
         document.getElementById('threat-level').addEventListener('input', (e) => {
             const level = e.target.value;
             document.getElementById('current-level').textContent = level;
             this.updateLevelIndicator(level);
         });
 
-        // PRZYCISK POMOCY
+        // SYSTEM POMOCY
         document.getElementById('help-btn').addEventListener('click', () => {
             this.showHelp();
         });
@@ -46,22 +46,46 @@ class SafePlaceApp {
             this.hideHelp();
         });
 
-        // Zamknij modal po kliknięciu w tło
         document.getElementById('help-modal').addEventListener('click', (e) => {
             if (e.target.id === 'help-modal') {
                 this.hideHelp();
             }
         });
 
-        // Reszta istniejących event listenerów...
-        document.getElementById('apply-filters').addEventListener('click', () => {
+        // FILTRY W CZASIE RZECZYWISTYM
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            this.threatManager.filters.search = e.target.value.toLowerCase();
             this.applyFilters();
         });
 
+        document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateTypeFilters();
+                this.applyFilters();
+            });
+        });
+
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.target.classList.toggle('active');
+                this.updateLevelFilters();
+                this.applyFilters();
+            });
+        });
+
+        document.querySelectorAll('input[name="voteStatus"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.threatManager.filters.voteStatus = e.target.value;
+                this.applyFilters();
+            });
+        });
+
+        // WYCZYSZCZANIE FILTRÓW
         document.getElementById('clear-filters').addEventListener('click', () => {
             this.clearFilters();
         });
 
+        // PANEL ZGŁOSZEŃ
         document.getElementById('show-reports-btn').addEventListener('click', () => {
             this.toggleReportsSidebar();
         });
@@ -74,15 +98,12 @@ class SafePlaceApp {
             this.closeReportsSidebar();
         });
 
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            this.threatManager.filters.search = e.target.value.toLowerCase();
-            this.applyFilters();
-        });
-
+        // KLIKNIĘCIE MAPY
         document.addEventListener('mapClick', (e) => {
             this.openReportForm(e.detail.latlng);
         });
 
+        // ZAKŁADKI W PANELU ZGŁOSZEŃ
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -92,29 +113,8 @@ class SafePlaceApp {
                 this.updateReportsList();
             });
         });
-
-        document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                this.updateTypeFilters();
-            });
-        });
-
-        document.querySelectorAll('.level-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.target.classList.toggle('active');
-                this.updateLevelFilters();
-            });
-        });
-
-        document.querySelectorAll('input[name="voteStatus"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                this.threatManager.filters.voteStatus = e.target.value;
-                this.applyFilters();
-            });
-        });
     }
 
-    // FUNKCJE POMOCY
     showHelp() {
         document.getElementById('help-modal').classList.add('active');
     }
@@ -123,9 +123,8 @@ class SafePlaceApp {
         document.getElementById('help-modal').classList.remove('active');
     }
 
-    // FUNKCJE PASK POZIOMU ZAGROŻENIA
     setupLevelIndicator() {
-        this.updateLevelIndicator(5); // Domyślna wartość
+        this.updateLevelIndicator(5);
     }
 
     updateLevelIndicator(level) {
@@ -134,7 +133,6 @@ class SafePlaceApp {
         
         levelFill.style.width = `${percentage}%`;
         
-        // Zmiana koloru w zależności od poziomu
         let color;
         if (level <= 2) {
             color = 'linear-gradient(90deg, #27ae60, #2ecc71)';
@@ -151,7 +149,6 @@ class SafePlaceApp {
         levelFill.style.background = color;
     }
 
-    // Reszta funkcji pozostaje bez zmian...
     async loadThreats() {
         await this.threatManager.loadThreats();
         this.threatManager.threats.forEach(threat => {
@@ -164,14 +161,14 @@ class SafePlaceApp {
         form.classList.add('active');
         form.dataset.lat = latlng.lat;
         form.dataset.lng = latlng.lng;
-        this.setupLevelIndicator(); // Reset paska przy otwarciu formularza
+        this.setupLevelIndicator();
     }
 
     closeReportForm() {
         document.getElementById('report-form').classList.remove('active');
         document.getElementById('threat-report').reset();
         document.getElementById('current-level').textContent = '5';
-        this.updateLevelIndicator(5); // Reset do wartości domyślnej
+        this.updateLevelIndicator(5);
         delete document.getElementById('report-form').dataset.lat;
         delete document.getElementById('report-form').dataset.lng;
     }
@@ -327,7 +324,6 @@ class SafePlaceApp {
         document.querySelectorAll('.filter-option input[type="checkbox"]:checked').forEach(checkbox => {
             this.threatManager.filters.types.push(checkbox.dataset.type);
         });
-        this.applyFilters();
     }
 
     updateLevelFilters() {
@@ -335,10 +331,10 @@ class SafePlaceApp {
         document.querySelectorAll('.level-btn.active').forEach(btn => {
             this.threatManager.filters.levels.push(parseInt(btn.dataset.level));
         });
-        this.applyFilters();
     }
 
     clearFilters() {
+        // Resetuj wszystkie kontrolki filtrów
         document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = true;
         });
@@ -351,12 +347,16 @@ class SafePlaceApp {
         
         document.getElementById('search-input').value = '';
         
+        // Zresetuj filtry w managerze
         this.threatManager.filters.types = ['crime', 'accident', 'nature', 'infrastructure', 'health', 'other'];
         this.threatManager.filters.levels = [1,2,3,4,5,6,7,8,9,10];
         this.threatManager.filters.voteStatus = 'all';
         this.threatManager.filters.search = '';
         
+        // Automatycznie zastosuj wyczyszczone filtry
         this.applyFilters();
+        
+        this.showNotification('Filtry zostały wyczyszczone', 'success');
     }
 
     showNotification(message, type = 'success') {
