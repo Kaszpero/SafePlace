@@ -188,14 +188,15 @@ body {
 }
 
 .btn-secondary {
-    background: #95a5a6;
+    background: #3498db;
     color: white;
-    border: 2px solid #7f8c8d;
+    border: 2px solid #2980b9;
 }
 
 .btn-secondary:hover {
-    background: #7f8c8d;
+    background: #2980b9;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
 
 .btn-success {
@@ -217,6 +218,17 @@ body {
 
 .btn-danger:hover {
     background: #c0392b;
+    transform: translateY(-2px);
+}
+
+.btn-info {
+    background: #17a2b8;
+    color: white;
+    border: 2px solid #138496;
+}
+
+.btn-info:hover {
+    background: #138496;
     transform: translateY(-2px);
 }
 
@@ -330,6 +342,37 @@ body {
     color: #2c3e50;
     font-size: 1.1rem;
     animation: pulse 1.5s infinite;
+}
+
+/* KOLOROWY PASEK POZIOMU ZAGROŻENIA */
+.threat-level-indicator {
+    margin-top: 15px;
+}
+
+.level-bar {
+    width: 100%;
+    height: 20px;
+    background: #ecf0f1;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.level-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: all 0.5s ease;
+    background: linear-gradient(90deg, #27ae60, #f1c40f, #e67e22, #e74c3c, #8e44ad);
+    width: 50%;
+}
+
+.level-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-top: 5px;
 }
 
 .form-buttons {
@@ -712,6 +755,165 @@ body {
     transform: scale(1.1);
 }
 
+/* PRZYCISK POMOCY */
+.help-floating-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    z-index: 1000;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    animation: bounce 2s infinite;
+}
+
+.help-floating-btn:hover {
+    background: #138496;
+    transform: scale(1.1);
+}
+
+/* MODAL POMOCY */
+.help-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.help-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.help-content {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    animation: slideInUp 0.3s ease-out;
+}
+
+.help-header {
+    padding: 20px;
+    border-bottom: 2px solid #3498db;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.help-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close-help {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.close-help:hover {
+    transform: scale(1.2);
+}
+
+.help-body {
+    padding: 20px;
+}
+
+.help-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.help-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.help-section h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    border-left: 4px solid #3498db;
+    padding-left: 10px;
+}
+
+.help-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.help-section li {
+    padding: 8px 0;
+    padding-left: 25px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.help-section li:before {
+    content: "•";
+    color: #3498db;
+    font-weight: bold;
+    position: absolute;
+    left: 10px;
+}
+
+.level-guide {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.level-guide h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.guide-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.guide-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.help-footer {
+    padding: 20px;
+    border-top: 1px solid #ecf0f1;
+    text-align: center;
+}
+
 .search-container {
     margin-bottom: 20px;
 }
@@ -913,260 +1115,9 @@ body {
         right: 20px;
         left: 20px;
     }
-}
-/* ... istniejący CSS pozostaje ... */
 
-/* PRZYCISK POMOCY */
-.btn-info {
-    background: #17a2b8;
-    color: white;
-    border: 2px solid #138496;
-}
-
-.btn-info:hover {
-    background: #138496;
-    transform: translateY(-2px);
-}
-
-.help-floating-btn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: #17a2b8;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    z-index: 1000;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-    animation: bounce 2s infinite;
-}
-
-.help-floating-btn:hover {
-    background: #138496;
-    transform: scale(1.1);
-}
-
-/* MODAL POMOCY */
-.help-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 10000;
-    animation: fadeIn 0.3s ease-out;
-}
-
-.help-modal.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.help-content {
-    background: white;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    animation: slideInUp 0.3s ease-out;
-}
-
-.help-header {
-    padding: 20px;
-    border-bottom: 2px solid #3498db;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    border-radius: 15px 15px 0 0;
-}
-
-.help-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-.close-help {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.close-help:hover {
-    transform: scale(1.2);
-}
-
-.help-body {
-    padding: 20px;
-}
-
-.help-section {
-    margin-bottom: 25px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #ecf0f1;
-}
-
-.help-section:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
-
-.help-section h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    border-left: 4px solid #3498db;
-    padding-left: 10px;
-}
-
-.help-section ul {
-    list-style: none;
-    padding: 0;
-}
-
-.help-section li {
-    padding: 8px 0;
-    padding-left: 25px;
-    position: relative;
-    line-height: 1.5;
-}
-
-.help-section li:before {
-    content: "•";
-    color: #3498db;
-    font-weight: bold;
-    position: absolute;
-    left: 10px;
-}
-
-.level-guide {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-}
-
-.level-guide h4 {
-    margin-bottom: 10px;
-    color: #2c3e50;
-}
-
-.guide-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 5px 0;
-}
-
-.guide-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    margin-right: 10px;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.help-footer {
-    padding: 20px;
-    border-top: 1px solid #ecf0f1;
-    text-align: center;
-}
-
-/* KOLOROWY PASEK POZIOMU ZAGROŻENIA */
-.threat-level-indicator {
-    margin-top: 15px;
-}
-
-.level-bar {
-    width: 100%;
-    height: 20px;
-    background: #ecf0f1;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 8px;
-}
-
-.level-fill {
-    height: 100%;
-    border-radius: 10px;
-    transition: all 0.5s ease;
-    background: linear-gradient(90deg, #27ae60, #f1c40f, #e67e22, #e74c3c, #8e44ad);
-    width: 50%; /* domyślnie 5/10 */
-}
-
-.level-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: #7f8c8d;
-    margin-top: 5px;
-}
-
-/* Animacje dla modala */
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsywność */
-@media (max-width: 768px) {
     .help-content {
         width: 95%;
         margin: 20px;
-    }
-    
-    .help-header h2 {
-        font-size: 1.3rem;
-    }
-    
-    .help-section h3 {
-        font-size: 1.1rem;
-    }
-    
-    .help-floating-btn {
-        bottom: 10px;
-        right: 10px;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .help-body {
-        padding: 15px;
-    }
-    
-    .help-section {
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-    }
-    
-    .level-guide {
-        padding: 10px;
-    }
-    
-    .guide-item {
-        font-size: 0.9rem;
     }
 }
