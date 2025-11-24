@@ -77,4 +77,5 @@ Aplikacja zawiera płynne animacje:
 -Problem: Brak folderu data i tego jednego Jsona
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
+- **Przepraszam ale jesli bedzie uzwany plik "SAFEPLACE(PLAN B)" to przepraszam za lekkie bledy itp.**
 
