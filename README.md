@@ -77,3 +77,4 @@ Aplikacja zawiera płynne animacje:
 -Problem: Brak folderu data i tego jednego Jsona
 
 - **NIE TWÓRZ GO! Serwer tworzy go automatycznie przy pierwszym uruchomieniu.**
+
